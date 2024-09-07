@@ -1,17 +1,16 @@
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import ChatMessagePage from "./pages/ChatMessagePage";
-import ChatRoomPage from "./pages/ChatRoomPage";
+import React from 'react';
+import ChatRoomList from './components/ChatRoomList';
+import './App.css';
 
-function App() {
+const App: React.FC = () => {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Link to={"/rooms"}>채팅방 보기</Link>
-        <Routes>
-          <Route path="/rooms" element={<ChatRoomPage/>}/>
-          <Route path="/rooms/:roomId" element={<ChatMessagePage/>}/>
-        </Routes>
-      </BrowserRouter>
+      <header className="App-header">
+        <h1>채팅 애플리케이션</h1>
+      </header>
+      <main>
+        <ChatRoomList />
+      </main>
     </div>
   );
 }
