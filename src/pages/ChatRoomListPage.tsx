@@ -1,7 +1,7 @@
 import React from 'react';
 import ChatRoomList from '../components/ChatRoomList';
 
-const ChatRoom: React.FC = () => {
+const ChatRoomListPage: React.FC = () => {
     return (
         <div>
             <ChatRoomList />
@@ -9,4 +9,4 @@ const ChatRoom: React.FC = () => {
     );
 };
 
-export default ChatRoom;
+export default ChatRoomListPage;

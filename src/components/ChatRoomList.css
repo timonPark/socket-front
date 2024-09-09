@@ -124,3 +124,21 @@
 .cancel-button:hover {
     background-color: #c82333;
 }
+
+.chatroom-list {
+    list-style: none;
+    padding: 0;
+}
+
+.chatroom-item {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.chatroom-item:hover {
+    background-color: #e0e0e0;
+}
