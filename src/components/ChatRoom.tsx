@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import './ChatRoom.css'; // CSS 파일 임포트
 
 const ChatRoom: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<{ sender: string; content: string }[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
+    const [nickname, setNickname] = useState<string>(''); // 닉네임 상태
     const [stompClient, setStompClient] = useState<Client | null>(null);
 
     useEffect(() => {
-        // WebSocket 서버 연결
-        const socket = new SockJS('http://10.100.2.33:8788/ws'); // WebSocket URL로 변경
+        const socket = new SockJS(`http://10.100.2.33:8788/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000,
+            debug: (str) => console.log(str),
         });
 
         client.onConnect = () => {
             console.log('Connected to WebSocket');
-
-            client.subscribe('/topic/public', (message) => {
+            client.subscribe(`/topic/chatroom/${roomId}`, (message) => {
                 const messageBody = JSON.parse(message.body);
-                setMessages((prevMessages) => [...prevMessages, messageBody.content]);
-            });
-
-            // 사용자 참가 메시지 전송
-            client.publish({
-                destination: '/app/chat.addUser',
-                body: JSON.stringify({ sender: 'User', type: 'JOIN' }),
+                setMessages((prevMessages) => [...prevMessages, messageBody]);
             });
         };
 
@@ -39,10 +34,10 @@ const ChatRoom: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {
     }, [roomId]);
 
     const sendMessage = () => {
-        if (stompClient) {
+        if (stompClient && nickname) {
             stompClient.publish({
-                destination: '/app/chat.sendMessage',
-                body: JSON.stringify({ sender: 'User', content: newMessage, type: 'CHAT' }),
+                destination: `/app/chatroom/${roomId}/sendMessage`,
+                body: JSON.stringify({ sender: nickname, content: newMessage, type: 'CHAT' }), // 닉네임 포함
             });
             setNewMessage('');
         }
@@ -51,18 +46,32 @@ const ChatRoom: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {
     return (
         <div>
             <h2>채팅방 {roomId}</h2>
-            <div className="chat-messages">
-                {messages.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                ))}
+            <div className="chat-container">
+                <div className="chat-messages">
+                    {messages.map((msg, index) => (
+                        <p key={index}>
+                            <strong>{msg.sender}:</strong> {msg.content}
+                        </p>
+                    ))}
+                </div>
+                <div className="chat-input-container">
+                    <input
+                        type="text"
+                        value={nickname}
+                        onChange={(e) => setNickname(e.target.value)}
+                        placeholder="닉네임을 입력하세요..."
+                        className="nickname-input"
+                    />
+                    <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="메시지를 입력하세요..."
+                        className="message-input"
+                    />
+                    <button onClick={sendMessage} className="send-button">전송</button>
+                </div>
             </div>
-            <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="메시지를 입력하세요..."
-            />
-            <button onClick={sendMessage}>전송</button>
         </div>
     );
 };
