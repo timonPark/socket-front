@@ -10,7 +10,7 @@ const ChatRoom: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {
     const [stompClient, setStompClient] = useState<Client | null>(null);
 
     useEffect(() => {
-        const socket = new SockJS(`http://10.100.2.33:8788/ws`);
+        const socket = new SockJS(`http://10.100.0.190:8788/ws`);
         const client = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000,
@@ -49,9 +49,13 @@ const ChatRoom: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {
             <div className="chat-container">
                 <div className="chat-messages">
                     {messages.map((msg, index) => (
-                        <p key={index}>
-                            <strong>{msg.sender}:</strong> {msg.content}
-                        </p>
+                        <div
+                            key={index}
+                            className={`chat-message ${msg.sender === nickname ? 'my-message' : 'other-message'}`}
+                        >
+                            <p className="message-sender">{msg.sender}</p>
+                            <p className="message-content">{msg.content}</p>
+                        </div>
                     ))}
                 </div>
                 <div className="chat-input-container">
